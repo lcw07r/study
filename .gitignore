@@ -1,0 +1,6 @@
+.DS_Store
+java/BlueJ.app
+*.ctxt
+*.class
+*.bluej
+*README.TXT
