@@ -9,7 +9,7 @@
 <body>
 <?php 
 	initialise(); 	
-	output_page(); 
+	outputPageContent(); 
 ?>
 </body>
 </html>
@@ -30,15 +30,128 @@
  */
  
  	// define variables and set to empty values
-	$pathErr = $extensionErr = "";
 	$path = $extension = "";
- 
+	$err = array("pathErr"=>"", "extensionErr"=>"");
+
+
+/**
+ * This is a function to output the page content
+ * it also calls to function scanDirectory
+ */
+function outputPageContent()
+{
+	global $path;
+	global $extension;
+	global $err;	
+	
+	$method = "GET";
+	$action = htmlspecialchars($_SERVER["PHP_SELF"]);
+
+	//prepare the form fields for user input
+	$formFields = array();
+	$formFields[] = array("labelText"=>"Directory", "type"=>"text", "name"=>"path", "id"=>"path", "value"=>$path, "class"=>"error", "errMessage"=>$err["pathErr"]);
+	$formFields[] = array("labelText"=>"Extension", "type"=>"text", "name"=>"extension", "id"=>"extension", "value"=>$extension, "class"=>"error",  "errMessage"=>$err["extensionErr"]);
+	
+	//prepare the page content - call to the hemlForm function to display the form section
+	$content  = '<h2>Get files from specified file path and extension</h2>';
+	$content .= '<p><span class="error">* required field.</span></p>';
+	$content .= htmlForm($method, $action, $formFields);
+	$content .= '<p>The files in the directory of "'.$path.'" with file type of "'.$extension.'" are:</p>';
+	
+	//output the content
+	echo $content;
+	
+	//process the user input
+	scanDirectory($path, $extension);
+}
+
+/**
+ * This is the function that output the form section 
+ * it is called by the function outputPageContent
+ *
+ * @param string $method	the method that used for post the form
+ * @param string $action	where the form post to
+ * @param string $formFields 	the array that contains all the form fields data
+ * @return string $form 	the html form data
+ */
+function htmlForm($method, $action, $formFields){
+	$form  = '<form method="'.$method.'" action="'.$action.'">'."\n";
+	foreach ($formFields as $formField){
+		$form .= '<br><label for="'.$formField["name"].'">'.$formField["labelText"].'</label>'."\n";
+		$form .= '<input type="'.$formField["type"].'" name="'.$formField["name"].'" id="'.$formField["id"].'" value="'.$formField["value"].'" /><span class="'.$formField["class"].'" > * '.$formField["errMessage"].'</span>'."\n";
+	}
+	$form .= '<br><br><input type="submit" name="submit" value="Submit">'."\n";
+	$form .= '</form>';
+	return $form;	
+}
+
+
+
+/**
+ * This is the main function that scan the input directory recursivly 
+ * it is called by the function outputPageContent
+ * it also calls to function outputFileWithSelectedExtension
+ *
+ * @param string $path	a path for search
+ * @param string $ectension the file extension for mathing with
+ */
+function scanDirectory($path, $extension) {
+
+	//1. get the file name from the path
+	//$pathParts['basename'] will return the file name with extension from the function pathinfo(path) 
+	$pathParts = pathinfo($path);
+	$itemFullName = $pathParts['basename'];
+
+	//ignore . and .. files in directory
+	if (($itemFullName==".")  ||  ($itemFullName=="..")){
+		return;
+	}
+	// 2. check whether the item achieved from the path is a file or a directory, 
+	if (is_file($path)){	
+		//3.1 if it is a file, check if it match the required extension
+		outputFileWithSelectedExtension($path, $extension);	
+	
+	}elseif (is_dir($path)) {	
+		//3.2 if it is a directory, open it
+		if ($handle = opendir($path)) {
+			//if the directory is not empty, go through it one by one, 
+			//and call to the function scanDirectory recursivly to scan each of them
+			while (false !== ($item = readdir($handle))) {
+				//set the new path to include the sub-directory item 
+				$newpath = $path."/".$item;
+				scanDirectory($newpath, $extension);
+			}            
+		}
+		//close the directory when there is no more items 
+		closedir($handle);
+	} 
+}
+
+
+/**
+ * This is the function to match any files with the given extension 
+ * it is called by the function scanDirectory
+ *
+ * @param string $path	a path for search
+ * @param string $ectension the file extension for mathing with
+ */
+function outputFileWithSelectedExtension($path, $extension){
+	//1. get info of the file, check whether it has extension
+	$pathParts = pathinfo($path); 
+	if (array_key_exists('extension', $pathParts)){
+		//2. if the file has an extension, check if it match the required one, output it if yes
+		if($extension == $pathParts['extension']){
+			echo $path."<br/>";
+		}
+	}
+}
+
 /**
  * This is a function to prepare the posted form data before loading the page content
- * it also calls to function test_input
+ * it also calls to function prepareInput
  */ 
 function initialise(){
-	global $pathErr, $extensionErr, $path, $extension;
+	global $err, $path, $extension;
 	
 	// define variables and set to empty values
 	//$pathErr = $extensionErr = "";
@@ -52,15 +165,15 @@ function initialise(){
 		//1. check if any of the required fields empty, if yes, set error messages 
 		if (empty($path) || empty($extension)){
 			if (empty($path)){
-				$pathErr = "Directory is required";
+				$err["pathErr"] = "Directory is required";
 			}
 			if (empty($extension)){
-				$extensionErr = "extension is required";
+				$err["extensionErr"] = "extension is required";
 			}
 		}else{
 			//2. prepare the input values 			
-			$path = test_input($path);
-			$extension = test_input($extension);
+			$path = prepareInput($path);
+			$extension = prepareInput($extension);
 			
 			//3 make sure the input directory for search hasn't got the "/" at the end
 			if ($path[strlen($path)-1] == "/" )
@@ -84,101 +197,12 @@ function initialise(){
  * @param string $data the input data for validation 
  * @return string $data the $data that after validation
  */
-function test_input($data)
+function prepareInput($data)
 {
      $data = trim($data);
      $data = stripslashes($data);
      $data = htmlspecialchars($data);
      return $data;
-}
-
-/**
- * This is a function to output the page content
- * it also calls to function scan_Dir
- */
-function output_page()
-{
-	global $path;
-	global $extension;
-	global $pathErr;
-	global $extensionErr;
-
-	?>
-	<h2>Get files from specified file path and extension</h2>
-	<p><span class="error">* required field.</span></p>
-	<form method="GET" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-	   Directory: <input type="text" name="path" value="<?php echo $path;?>">
-	   <span class="error">* <?php echo $pathErr;?></span>
-	   <br><br>
-	   Extension: <input type="text" name="extension" value="<?php echo $extension;?>">
-	   <span class="error">* <?php echo $extensionErr;?></span>
-	   <br><br>
-	   <input type="submit" name="submit" value="Submit">
-	</form>
-	
-	
-	<?php
-	echo '<p>The files in the directory of "'.$path.'" with file type of "'.$extension.'" are:</p>';
-	scan_Dir($path, $extension);
-}
-
-
-/**
- * This is the main function that scan the input directory recursivly 
- * it is called by the function output_page
- * it also calls to function outputFileWithSelectedExtension
- *
- * @param string $path	a path for search
- * @param string $ectension the file extension for mathing with
- */
-function scan_Dir($path, $extension) {
-	//1. get the file name from the path
-	//$path_parts['basename'] will return the file name with extension from the function pathinfo(path) 
-	$path_parts = pathinfo($path);
-	$itemFullName = $path_parts['basename'];
-
-	//ignore . and .. files in directory
-	if (($itemFullName==".")  ||  ($itemFullName=="..")){
-		return;
-	}
-	// 2. check whether the item achieved from the path is a file or a directory, 
-	if (is_file($path)){	
-		//3.1 if it is a file, check if it match the required extension
-		outputFileWithSelectedExtension($path, $extension);	
-	
-	}elseif (is_dir($path)) {	
-		//3.2 if it is a directory, open it
-		if ($handle = opendir($path)) {
-			//if the directory is not empty, go through it one by one, 
-			//and call to the function scan_Dir recursivly to scan each of them
-			while (false !== ($item = readdir($handle))) {
-				//set the new path to include the sub-directory item 
-				$newpath = $path."/".$item;
-				scan_Dir($newpath, $extension);
-			}            
-		}
-		//close the directory when there is no more items 
-		closedir($handle);
-	} 
-}
-
-
-/**
- * This is the function to match any files with the given extension 
- * it is called by the function scan_Dir
- *
- * @param string $path	a path for search
- * @param string $ectension the file extension for mathing with
- */
-function outputFileWithSelectedExtension($path, $extension){
-	//1. get info of the file, check whether it has extension
-	$path_parts = pathinfo($path); 
-	if (array_key_exists('extension', $path_parts)){
-		//2. if the file has an extension, check if it match the required one, output it if yes
-		if($extension == $path_parts['extension']){
-			echo $path."<br/>";
-		}
-	}
 }
 
 ?>
