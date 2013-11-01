@@ -1,16 +1,31 @@
 <!DOCTYPE HTML>
 <html>
-
 <head>
-<style>
-	.error {color: #FF0000;}
-</style>
+    <!-- Bootstrap -->
+    <link href="../bootstrap-3.0.1-dist/css/bootstrap.min.css" rel="stylesheet" media="screen">
+	<style>
+		.error {color: #FF0000;}
+	</style>
 </head>
 <body>
+<div class="container">
+	<div class="page-header">
+		<h1>Get files from specified file path and extension</h1>
+	</div><!-- end of page-header -->
 <?php 
+	//prepare data
 	initialise(); 	
-	outputPageContent(); 
+	
+	//out put the user input form for the required info (directory and extension)
+	outputUserInputForm(); 
+		
+	//process the user input
+	scanDirectory($path, $extension);
+	
+	//dispaly the matched files in a table
+	displayMatchedFiles($matchedFiles);	
 ?>
+</div><!-- end of container -->
 </body>
 </html>
 
@@ -32,17 +47,16 @@
  	// define variables and set to empty values
 	$path = $extension = "";
 	$err = array("pathErr"=>"", "extensionErr"=>"");
+	$matchedFiles = array("filename"=>"", "path"=>"", "filesize"=>"", "dateModified"=>"");
 
 
 /**
  * This is a function to output the page content
- * it also calls to function scanDirectory
+ * it also calls to functions scanDirectory, htmlForm, and displayMatchedFiles
  */
-function outputPageContent()
+function outputUserInputForm()
 {
-	global $path;
-	global $extension;
-	global $err;	
+	global $path, $extension, $err, $matchedFiles;	
 	
 	$method = "GET";
 	$action = htmlspecialchars($_SERVER["PHP_SELF"]);
@@ -53,21 +67,18 @@ function outputPageContent()
 	$formFields[] = array("labelText"=>"Extension", "type"=>"text", "name"=>"extension", "id"=>"extension", "value"=>$extension, "class"=>"error",  "errMessage"=>$err["extensionErr"]);
 	
 	//prepare the page content - call to the hemlForm function to display the form section
-	$content  = '<h2>Get files from specified file path and extension</h2>';
-	$content .= '<p><span class="error">* required field.</span></p>';
-	$content .= htmlForm($method, $action, $formFields);
-	$content .= '<p>The files in the directory of "'.$path.'" with file type of "'.$extension.'" are:</p>';
+	//$content  = '<h2>Get files from specified file path and extension</h2>';
+
+	$content = htmlForm($method, $action, $formFields);
 	
 	//output the content
 	echo $content;
-	
-	//process the user input
-	scanDirectory($path, $extension);
+
 }
 
 /**
  * This is the function that output the form section 
- * it is called by the function outputPageContent
+ * it is called by the function outputUserInputForm
  *
  * @param string $method	the method that used for post the form
  * @param string $action	where the form post to
@@ -75,13 +86,21 @@ function outputPageContent()
  * @return string $form 	the html form data
  */
 function htmlForm($method, $action, $formFields){
-	$form  = '<form method="'.$method.'" action="'.$action.'">'."\n";
+	$form  = '<form method="'.$method.'" action="'.$action.'" class="well form-horizontal" role="form">'."\n";
+	
+		$form .= '<p><span class="error">* required field.</span></p>';
 	foreach ($formFields as $formField){
-		$form .= '<br><label for="'.$formField["name"].'">'.$formField["labelText"].'</label>'."\n";
-		$form .= '<input type="'.$formField["type"].'" name="'.$formField["name"].'" id="'.$formField["id"].'" value="'.$formField["value"].'" /><span class="'.$formField["class"].'" > * '.$formField["errMessage"].'</span>'."\n";
-	}
-	$form .= '<br><br><input type="submit" name="submit" value="Submit">'."\n";
+		$form .= '<div class="form-group">';
+		$form .= '<label for="'.$formField["name"].'" class="col-sm-2 control-label">'.$formField["labelText"].'</label>'."\n";
+		$form .= '<div class="col-sm-10"><input type="'.$formField["type"].'" name="'.$formField["name"].'" id="'.$formField["id"].'" value="'.$formField["value"].'" /><span class="'.$formField["class"].'" > * '.$formField["errMessage"].'</span></div>'."\n";
+		$form .= '</div>';
+	}	
+	
+	$form .= '<div class="form-group">';
+	$form .= '<div class="col-sm-offset-2 col-sm-10"><input class="btn btn-primary" type="submit" name="submit" value="Submit"></div>'."\n";
+	$form .= '</div>';
 	$form .= '</form>';
+	$form .= '<br/><br/>';
 	return $form;	
 }
 
@@ -89,14 +108,14 @@ function htmlForm($method, $action, $formFields){
 
 /**
  * This is the main function that scan the input directory recursivly 
- * it is called by the function outputPageContent
+ * it is called by the function outputUserInputForm
  * it also calls to function outputFileWithSelectedExtension
  *
  * @param string $path	a path for search
  * @param string $ectension the file extension for mathing with
  */
 function scanDirectory($path, $extension) {
-
+	
 	//1. get the file name from the path
 	//$pathParts['basename'] will return the file name with extension from the function pathinfo(path) 
 	$pathParts = pathinfo($path);
@@ -109,7 +128,8 @@ function scanDirectory($path, $extension) {
 	// 2. check whether the item achieved from the path is a file or a directory, 
 	if (is_file($path)){	
 		//3.1 if it is a file, check if it match the required extension
-		outputFileWithSelectedExtension($path, $extension);	
+		//outputFileWithSelectedExtension($path, $extension);	
+		getFilesWithSelectedExtension($path, $extension);
 	
 	}elseif (is_dir($path)) {	
 		//3.2 if it is a directory, open it
@@ -125,6 +145,35 @@ function scanDirectory($path, $extension) {
 		//close the directory when there is no more items 
 		closedir($handle);
 	} 
+	
+}
+
+/**
+ * This is the function to collect all files with the specified extension within the specified path 
+ * it is called by the function scanDirectory
+ *
+ * @param string $path	a path for search
+ * @param string $ectension the file extension for mathing with
+ * @return array $matchedFiles an array for the matched files
+ */
+function getFilesWithSelectedExtension($path, $extension){
+	global $matchedFiles;
+	//1. get info of the file, check whether it has extension
+	$pathParts = pathinfo($path); 
+	if (array_key_exists('extension', $pathParts)){
+		//2. if the file has an extension, check if it match the required one, collect it into the array if yes
+		if($extension == $pathParts['extension']){
+			//if matched, collect the required file info, stores them in an array
+			$fileName = $pathParts['filename'];
+			$filePath = $pathParts['dirname'];
+			$fileSize = filesize($path);
+			$fileDate = date("m/d/Y", filemtime($path));
+
+			$matchedFiles[] = array("filename"=>$fileName, "path"=>$filePath, "filesize"=>$fileSize, "dateModified"=>$fileDate);
+		}
+	}
+	
+
 }
 
 
@@ -203,6 +252,38 @@ function prepareInput($data)
      $data = stripslashes($data);
      $data = htmlspecialchars($data);
      return $data;
+}
+
+/**
+ * This is a function for output the matched files in a table 
+ * it is called by function outputUserInputForm
+ * @param array $matchedFiles list of matched files with file info 
+ * 
+ */
+function displayMatchedFiles($matchedFiles){
+
+	$output = '<div class="panel panel-default">';	
+	$output  .= '<div class="panel-heading">The files under the directory with the matching extension are:</div>';
+
+	$output .= '<table class="table">';
+	$output .= '<tr>';
+	$output .= '<th>File Name</th>';
+	$output .= '<th>File Path</th>';
+	$output .= '<th>File Size in Bytes</th>';
+	$output .= '<th>File Last Modify Date</th>';
+	$output .= '</tr>';
+	
+	foreach ($matchedFiles as $matchedFile){
+		$output .= '<tr>';
+		$output .= '<td>'.$matchedFile["filename"].'</td>';
+		$output .= '<td>'.$matchedFile["path"].'</td>';
+		$output .= '<td>'.$matchedFile["filesize"].'</td>';
+		$output .= '<td>'.$matchedFile["dateModified"].'</td>';
+		$output .= '</tr>';	
+	}
+	$output .= '</table>';	
+	$output .= '</div>';
+	echo $output;
 }
 
 ?>
