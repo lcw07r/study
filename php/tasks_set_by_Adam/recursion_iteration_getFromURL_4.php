@@ -1,6 +1,5 @@
 <!DOCTYPE HTML>
 <html>
-<head>
     <!-- Bootstrap -->
     <link href="../bootstrap-3.0.1-dist/css/bootstrap.min.css" rel="stylesheet" media="screen">
 	<style>
@@ -12,7 +11,25 @@
 	<div class="page-header">
 		<h1>Get files from specified file path and extension</h1>
 	</div><!-- end of page-header -->
-<?php 
+<?php
+	/**
+	 * This is a program that will take two arguments:
+         *    - a path to a directory on the hard disk
+	 *    - a file extension
+	 *  then search all directories under the specified path for files with that extension 
+	 *  and print their filenames to the screen.
+	 *
+	 *  This task is an practice for appropriate useing both iteration and recursion 
+	 *
+	 * @author Lisha
+	 * @version 4
+	 */
+ 
+ 	// define variables and set to empty values
+	$path = $extension = "";
+	$err = array("pathErr"=>"", "extensionErr"=>"");
+	$matchedFiles = array(array("filename"=>"", "path"=>"", "filesize"=>"", "dateModified"=>""));
+
 	//prepare data
 	initialise(); 	
 	
@@ -30,25 +47,6 @@
 </html>
 
 <?php
-
-/**
- *  This is a program that will take two arguments:
- *		- a path to a directory on the hard disk
- *      - a file extension
- *  then search all directories under the specified path for files with that extension 
- *  and print their filenames to the screen.
- *
- *  This task is an practice for appropriate useing both iteration and recursion 
- *
- * @author Lisha
- * @version 4
- */
- 
- 	// define variables and set to empty values
-	$path = $extension = "";
-	$err = array("pathErr"=>"", "extensionErr"=>"");
-	$matchedFiles = array("filename"=>"", "path"=>"", "filesize"=>"", "dateModified"=>"");
-
 
 /**
  * This is a function to output the page content
@@ -115,7 +113,6 @@ function htmlForm($method, $action, $formFields){
  * @param string $ectension the file extension for mathing with
  */
 function scanDirectory($path, $extension) {
-	
 	//1. get the file name from the path
 	//$pathParts['basename'] will return the file name with extension from the function pathinfo(path) 
 	$pathParts = pathinfo($path);
@@ -123,15 +120,18 @@ function scanDirectory($path, $extension) {
 
 	//ignore . and .. files in directory
 	if (($itemFullName==".")  ||  ($itemFullName=="..")){
+		//echo "dotOrDotDot";
 		return;
 	}
 	// 2. check whether the item achieved from the path is a file or a directory, 
 	if (is_file($path)){	
 		//3.1 if it is a file, check if it match the required extension
 		//outputFileWithSelectedExtension($path, $extension);	
+		
 		getFilesWithSelectedExtension($path, $extension);
 	
 	}elseif (is_dir($path)) {	
+		
 		//3.2 if it is a directory, open it
 		if ($handle = opendir($path)) {
 			//if the directory is not empty, go through it one by one, 
@@ -144,8 +144,8 @@ function scanDirectory($path, $extension) {
 		}
 		//close the directory when there is no more items 
 		closedir($handle);
+		
 	} 
-	
 }
 
 /**
@@ -208,8 +208,8 @@ function initialise(){
 
 	//if the form is submitted, scan the input data 
 	if(isset($_GET['submit'])){	
-		$path=$_GET["path"];
-		$extension=$_GET["extension"];
+		$path=@$_GET["path"];
+		$extension=@$_GET["extension"];
 		
 		//1. check if any of the required fields empty, if yes, set error messages 
 		if (empty($path) || empty($extension)){
@@ -220,7 +220,7 @@ function initialise(){
 				$err["extensionErr"] = "extension is required";
 			}
 		}else{
-			//2. prepare the input values 			
+			//2. prepare the input values khhh			
 			$path = prepareInput($path);
 			$extension = prepareInput($extension);
 			
