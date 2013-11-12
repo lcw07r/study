@@ -20,15 +20,16 @@ public class TestCalculator {
 	 *   tests that x("12 [ 3") returns null because [ is not a valid operator 	 *
 	 */
 	public Boolean testParser(){
-		Double d = new Double("12");
-		Calculator cal = new Calculator(d);
+		
+		Calculator cal = new Calculator();
 		Boolean boo1 = false;
 		Boolean boo2 = false;
 		Boolean boo3 = false;
 		Boolean booAll = false;
 		
 		//test if x("12 + 5") = 17
-		if(cal.x("+ 5") == 17) {
+
+		if(cal.x("12 + 5").intValue() == 17) {
 			System.out.println("[ OK ] Parser adds correctly.");
 			boo1 = true;
 		}else{
@@ -36,7 +37,7 @@ public class TestCalculator {
 		}
 		
 		//test if x("12 x 5") = 60
-		if(cal.x("x 5") == 60) {
+		if(cal.x("12 x 5").intValue() == 60) {
 			System.out.println("[ OK ] Parser multiplies correctly.");
 			boo2 = true;
 		}else{
@@ -44,7 +45,7 @@ public class TestCalculator {
 		}
 
 		//test if x("12 [ 3") is not valid
-		if(cal.x("[ 3") == 60) {
+		if(cal.x("12 [ 3").intValue() == 0) {
 			System.out.println("[ OK ] Parser returns null for operators which are not supported.");
 			boo3 = true;
 		}else{
@@ -67,28 +68,28 @@ public class TestCalculator {
 	 *    In your test harness you will have to update your calculator's instance variable x manually in the test method. 
 	 */
 	public Boolean testAdd(){
-
+		
 		Boolean boo1 = false;
 		Boolean boo2 = false;
 		Boolean booAll = false;
 
-		Double d1 = new Double("10");
-		Calculator cal1 = new Calculator(d1);
+		
+		Calculator cal1 = new Calculator();
 		Double d2 = new Double("20");	
 		Double da1 = new Double("30");
-		
-		if (cal1.x(d2) == da1){
+			
+		if (cal1.x(d2).equals(da1) ){
 			System.out.println("[ OK ] Calculator can add positive numbers");
 			boo1 = true;			
 		}else{
 			System.out.println("[FAIL] Calculator adds incorrectly");
 		}
-		
-		Double d3 = new Double("-10");
-		Calculator cal2 = new Calculator(d3);
+   	 
+		Calculator cal2 = new Calculator();
 		Double d4 = new Double("-20");	
-		Double da2 = new Double("-30");
-		if (cal2.x(d4) == da2){
+		Double da2 = new Double("-10");
+		
+		if (cal2.x(d4).equals(da2) ){
 			System.out.println("[ OK ] Calculator can add a negative number");
 			boo2 = true;			
 		}else{
@@ -115,23 +116,24 @@ public class TestCalculator {
 		Boolean boo2 = false;
 		Boolean booAll = false;
 		
-		Double d1 = new Double("10");
-		Calculator cal1 = new Calculator(d1);
-		double d2 = new Double("20");	
-		Double da1 = new Double("30");
 		
-		if (cal1.x(d2) == da1){
+		Calculator cal1 = new Calculator();
+		double d2 = new Double("20");	
+		Double da1 = new Double("200");
+
+		if (cal1.x(d2).equals(da1) ){
 			System.out.println("[ OK ] Calculator can multiply positive numbers");
 			boo1 = true;			
 		}else{
 			System.out.println("[FAIL] Calculator multiplies incorrectly");
 		}
 		
-		Double d3 = new Double("-10");
-		Calculator cal2 = new Calculator(d3);
+		
+		Calculator cal2 = new Calculator();
 		double d4 = new Double("-20");	
-		Double da2 = new Double("-30");
-		if (cal2.x(d4) == da2){
+		Double da2 = new Double("-200");
+			
+		if (cal2.x(d4).equals(da2) ){
 			System.out.println("[ OK ] Calculator can multiply by a negative number");
 			boo2 = true;			
 		}else{
