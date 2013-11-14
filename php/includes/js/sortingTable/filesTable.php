@@ -1,11 +1,11 @@
 <!DOCTYPE HTML>
 <html>
     <!-- Bootstrap -->
-    <link href="../includes/bootstrap-3.0.1-dist/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="../bootstrap-3.0.1-dist/css/bootstrap.min.css" rel="stylesheet" media="screen">
         <style>
                 .error {color: #FF0000;}
         </style>
-        <script src="../includes/js/sortingTable/sorttable.js"></script>
+         <script src="sorttable.js"></script>
 </head>
 <body>
 <div class="container">
@@ -262,7 +262,7 @@ function displayMatchedFiles($matchedFiles){
         $output = '<div class="panel panel-default">';        
         $output .= '<div class="panel-heading">The files under the directory with the matching extension are:</div>';
 
-        $output .= '<table class="table sortable">';
+        $output .= '<table class="table">';
         $output .= '<tr>';
         $output .= '<th>File Name</th>';
         $output .= '<th>File Path</th>';
