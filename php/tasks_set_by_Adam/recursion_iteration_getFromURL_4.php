@@ -40,8 +40,11 @@
         //process the user input
         scanDirectory($path, $extension, $matchedFiles);
         
-        //dispaly the matched files in a table
+        //dispaly the matched files in a table - sort by included js
         displayMatchedFiles($matchedFiles);        
+        
+        //dispaly the matched files in a table - sort by function msort
+        displayMatchedFiles_with_msort($matchedFiles);      
 ?>
 </div><!-- end of container -->
 </body>
@@ -254,6 +257,7 @@ function prepareInput($data)
 /**
 * This is a function for output the matched files in a table
 * it is called by function outputUserInputForm
+* with the class of 'sortable', this table enable sorting by the includes js 
 * @param array $matchedFiles list of matched files with file info
 *
 */
@@ -284,6 +288,39 @@ function displayMatchedFiles($matchedFiles){
 }
 
 
+/**
+* This is a function for output the matched files in a table
+* it is called by function outputUserInputForm
+* this table enable sorting by the function msort 
+* @param array $matchedFiles list of matched files with file info
+*
+*/
+function displayMatchedFiles_with_msort($matchedFiles){
+
+        $output = '<div class="panel panel-default">';        
+        $output .= '<div class="panel-heading">The files under the directory with the matching extension are:</div>';
+
+        $output .= '<table class="table">';
+        $output .= '<tr>';
+        $output .= '<th>File Name</th>';
+        $output .= '<th>File Path</th>';
+        $output .= '<th><a href="#" onClick="msort($matchedFiles, \"filesize\");alert(\'hhhhhhhhhh\');" >File Size in Bytes</a></th>';
+        $output .= '<th>File Last Modify Date</th>';
+        $output .= '</tr>';
+        
+        foreach ($matchedFiles as $matchedFile){
+                $output .= '<tr>';
+                $output .= '<td>'.$matchedFile["filename"].'</td>';
+                $output .= '<td>'.$matchedFile["path"].'</td>';
+                $output .= '<td>'.$matchedFile["filesize"].'</td>';
+                $output .= '<td>'.$matchedFile["dateModified"].'</td>';
+                $output .= '</tr>';        
+        }
+        $output .= '</table>';        
+        $output .= '</div>';
+        echo $output;
+}
+
 
 /**
  * Sort a 2 dimensional array 
@@ -293,13 +330,13 @@ function displayMatchedFiles($matchedFiles){
  * 
  * @return 	array 					The sorted array.
  */
-function msort($array, $key) {
-	if (is_array($array) && count($array) > 0) {
+function msort($matchedFiles, $key) {
+	if (is_array($matchedFiles) && count($matchedFiles) > 0) {
 	        if (!empty($key)) {
 	        	$mapping = array();
 	        	
 	        	// 1. get the sorting fields into a new array with its initial array key, 
-            		foreach ($array as $k => $v) {
+            		foreach ($matchedFiles as $k => $v) {
                                 $mapping[$k] = $v[$key];
 	           	 }
 	           	 
@@ -309,18 +346,17 @@ function msort($array, $key) {
 	           	 // 3. rearrange the initial array with the sorted order of keys
 	            	$sorted = array();
 	           	 foreach ($mapping as $k => $v) {
-	               		 $sorted[] = $array[$k];
+	               		 $sorted[] = $matchedFiles[$k];
 	          	 }
 	           	 return $sorted;
 		}
    	}
-  	return $array;
 }
 
 
-$sortedfiles =  msort($matchedFiles, 'filesize');
+ $sorted = msort($matchedFiles, 'filesize');
 
-var_dump($sortedfiles);
+var_dump($sorted);
 
 
 
