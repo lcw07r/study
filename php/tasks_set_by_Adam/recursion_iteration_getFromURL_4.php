@@ -283,4 +283,46 @@ function displayMatchedFiles($matchedFiles){
         echo $output;
 }
 
+
+
+/**
+ * Sort a 2 dimensional array 
+ * 
+ * @param 	array        				$array      		The array to sort.
+ * @param	 	string|array 			$key        		The index(es) to sort the array on.
+ * 
+ * @return 	array 					The sorted array.
+ */
+function msort($array, $key) {
+	if (is_array($array) && count($array) > 0) {
+	        if (!empty($key)) {
+	        	$mapping = array();
+	        	
+	        	// 1. get the sorting fields into a new array with its initial array key, 
+            		foreach ($array as $k => $v) {
+                                $mapping[$k] = $v[$key];
+	           	 }
+	           	 
+	           	 // 2. sort the array against the required sorting field
+	           	 asort($mapping);
+	           	 
+	           	 // 3. rearrange the initial array with the sorted order of keys
+	            	$sorted = array();
+	           	 foreach ($mapping as $k => $v) {
+	               		 $sorted[] = $array[$k];
+	          	 }
+	           	 return $sorted;
+		}
+   	}
+  	return $array;
+}
+
+
+$sortedfiles =  msort($matchedFiles, 'filesize');
+
+var_dump($sortedfiles);
+
+
+
+
 ?>
