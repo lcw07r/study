@@ -1,10 +1,11 @@
 <!DOCTYPE HTML>
 <html>
     <!-- Bootstrap -->
-    <link href="../bootstrap-3.0.1-dist/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="../includes/bootstrap-3.0.1-dist/css/bootstrap.min.css" rel="stylesheet" media="screen">
         <style>
                 .error {color: #FF0000;}
         </style>
+        <script src="../includes/js/sortingTable/sorttable.js"></script>
 </head>
 <body>
 <div class="container">
@@ -13,25 +14,25 @@
         </div><!-- end of page-header -->
 <?php
         /**
-         * This is a program that will take two arguments:
+* This is a program that will take two arguments:
 * - a path to a directory on the hard disk
-         * - a file extension
-         * then search all directories under the specified path for files with that extension
-         * and print their filenames to the screen.
-         *
-         * This task is an practice for appropriate useing both iteration and recursion
-         *
-         * @author Lisha
-         * @version 4
-         */
+* - a file extension
+* then search all directories under the specified path for files with that extension
+* and print their filenames to the screen.
+*
+* This task is an practice for appropriate useing both iteration and recursion
+*
+* @author Lisha
+* @version 4
+*/
  
          // define variables and set to empty values
         $path = $extension = "";
         $err = array("pathErr"=>"", "extensionErr"=>"");
-        $matchedFiles = array();  // this will be an array of array("filename"=>"", "path"=>"", "filesize"=>"", "dateModified"=>""));
+        $matchedFiles = array(); // this will be an array of array("filename"=>"", "path"=>"", "filesize"=>"", "dateModified"=>""));
 
         //prepare data
-        initialise($err, $path, $extension);         
+        initialise($err, $path, $extension);
         
         //out put the user input form for the required info (directory and extension)
         outputUserInputForm($path, $extension, $err, $matchedFiles);
@@ -39,8 +40,11 @@
         //process the user input
         scanDirectory($path, $extension, $matchedFiles);
         
-        //dispaly the matched files in a table
-        displayMatchedFiles($matchedFiles);        
+        //dispaly the matched files in a table - sort by included js
+        //displayMatchedFiles($matchedFiles);
+        
+        //dispaly the matched files in a table - sort by function msort
+        displayMatchedFiles_with_msort($matchedFiles);
 ?>
 </div><!-- end of container -->
 </body>
@@ -54,7 +58,7 @@
 */
 function outputUserInputForm(&$path, &$extension, &$err, &$matchedFiles)
 {
-       // global $path, $extension, $err, $matchedFiles;        
+       // global $path, $extension, $err, $matchedFiles;
         
         $method = "GET";
         $action = htmlspecialchars($_SERVER["PHP_SELF"]);
@@ -78,10 +82,10 @@ function outputUserInputForm(&$path, &$extension, &$err, &$matchedFiles)
 * This is the function that output the form section
 * it is called by the function outputUserInputForm
 *
-* @param string $method        the method that used for post the form
-* @param string $action        where the form post to
-* @param string $formFields         the array that contains all the form fields data
-* @return string $form         the html form data
+* @param string $method the method that used for post the form
+* @param string $action where the form post to
+* @param string $formFields the array that contains all the form fields data
+* @return string $form the html form data
 */
 function htmlForm($method, $action, $formFields){
         $form = '<form method="'.$method.'" action="'.$action.'" class="well form-horizontal" role="form">'."\n";
@@ -92,14 +96,14 @@ function htmlForm($method, $action, $formFields){
                 $form .= '<label for="'.$formField["name"].'" class="col-sm-2 control-label">'.$formField["labelText"].'</label>'."\n";
                 $form .= '<div class="col-sm-10"><input type="'.$formField["type"].'" name="'.$formField["name"].'" id="'.$formField["id"].'" value="'.$formField["value"].'" /><span class="'.$formField["class"].'" > * '.$formField["errMessage"].'</span></div>'."\n";
                 $form .= '</div>';
-        }        
+        }
         
         $form .= '<div class="form-group">';
         $form .= '<div class="col-sm-offset-2 col-sm-10"><input class="btn btn-primary" type="submit" name="submit" value="Submit"></div>'."\n";
         $form .= '</div>';
         $form .= '</form>';
         $form .= '<br/><br/>';
-        return $form;        
+        return $form;
 }
 
 
@@ -109,7 +113,7 @@ function htmlForm($method, $action, $formFields){
 * it is called by the function outputUserInputForm
 * it also calls to function outputFileWithSelectedExtension
 *
-* @param string $path        a path for search
+* @param string $path a path for search
 * @param string $ectension the file extension for mathing with
 */
 function scanDirectory($path, $extension, &$matchedFiles) {
@@ -124,13 +128,13 @@ function scanDirectory($path, $extension, &$matchedFiles) {
                 return;
         }
         // 2. check whether the item achieved from the path is a file or a directory,
-        if (is_file($path)){        
+        if (is_file($path)){
                 //3.1 if it is a file, check if it match the required extension
-                //outputFileWithSelectedExtension($path, $extension);        
+                //outputFileWithSelectedExtension($path, $extension);
                 
                 getFilesWithSelectedExtension($path, $extension, $matchedFiles);
         
-        }elseif (is_dir($path)) {        
+        }elseif (is_dir($path)) {
                 
                 //3.2 if it is a directory, open it
                 if ($handle = opendir($path)) {
@@ -152,7 +156,7 @@ function scanDirectory($path, $extension, &$matchedFiles) {
 * This is the function to collect all files with the specified extension within the specified path
 * it is called by the function scanDirectory
 *
-* @param string $path        a path for search
+* @param string $path a path for search
 * @param string $ectension the file extension for mathing with
 * @return array $matchedFiles an array for the matched files
 */
@@ -181,7 +185,7 @@ function getFilesWithSelectedExtension($path, $extension, &$matchedFiles){
 * This is the function to match any files with the given extension
 * it is called by the function scanDirectory
 *
-* @param string $path        a path for search
+* @param string $path a path for search
 * @param string $ectension the file extension for mathing with
 */
 function outputFileWithSelectedExtension($path, $extension){
@@ -203,7 +207,7 @@ function initialise(&$err, &$path, &$extension){
        // global $err, $path, $extension;
         
         //if the form is submitted, scan the input data
-        if(isset($_GET['submit'])){        
+        if(isset($_GET['submit'])){
                 $path=@$_GET["path"];
                 $extension=@$_GET["extension"];
                 
@@ -216,7 +220,7 @@ function initialise(&$err, &$path, &$extension){
                                 $err["extensionErr"] = "extension is required";
                         }
                 }else{
-                        //2. prepare the input values khhh                        
+                        //2. prepare the input values khhh
                         $path = prepareInput($path);
                         $extension = prepareInput($extension);
                         
@@ -253,15 +257,16 @@ function prepareInput($data)
 /**
 * This is a function for output the matched files in a table
 * it is called by function outputUserInputForm
+* with the class of 'sortable', this table enable sorting by the includes js
 * @param array $matchedFiles list of matched files with file info
 *
 */
 function displayMatchedFiles($matchedFiles){
 
-        $output = '<div class="panel panel-default">';        
+        $output = '<div class="panel panel-default">';
         $output .= '<div class="panel-heading">The files under the directory with the matching extension are:</div>';
 
-        $output .= '<table class="table">';
+        $output .= '<table class="table sortable">';
         $output .= '<tr>';
         $output .= '<th>File Name</th>';
         $output .= '<th>File Path</th>';
@@ -275,11 +280,122 @@ function displayMatchedFiles($matchedFiles){
                 $output .= '<td>'.$matchedFile["path"].'</td>';
                 $output .= '<td>'.$matchedFile["filesize"].'</td>';
                 $output .= '<td>'.$matchedFile["dateModified"].'</td>';
-                $output .= '</tr>';        
+                $output .= '</tr>';
         }
-        $output .= '</table>';        
+        $output .= '</table>';
         $output .= '</div>';
         echo $output;
 }
+
+
+/**
+* This is a function for output the matched files in a table
+* it is called by function outputUserInputForm
+* this table enable sorting by the function msort
+* @param array $matchedFiles list of matched files with file info
+*
+*/
+function displayMatchedFiles_with_msort($matchedFiles){
+
+        $output = '<div class="panel panel-default">';
+        $output .= '<div class="panel-heading">The files under the directory with the matching extension are:</div>';
+
+        $output .= '<table class="table">';
+        $output .= '<tr>';
+        $output .= '<th>File Name</th>';
+        $output .= '<th>File Path</th>';
+        $output .= '<th><a href="#" onClick="msort($matchedFiles, \"filesize\");alert(\'hhhhhhhhhh\');" >File Size in Bytes</a></th>';
+        $output .= '<th>File Last Modify Date</th>';
+        $output .= '</tr>';
+        
+        foreach ($matchedFiles as $matchedFile){
+                $output .= '<tr>';
+                $output .= '<td>'.$matchedFile["filename"].'</td>';
+                $output .= '<td>'.$matchedFile["path"].'</td>';
+                $output .= '<td>'.$matchedFile["filesize"].'</td>';
+                $output .= '<td>'.$matchedFile["dateModified"].'</td>';
+                $output .= '</tr>';
+        }
+        $output .= '</table>';
+        $output .= '</div>';
+        echo $output;
+}
+
+
+/**
+* Sort a 2 dimensional array
+*
+* @param         array                                 $array                 The array to sort.
+* @param                 string|array                         $key                 The index(es) to sort the array on.
+*
+* @return         array                                         The sorted array.
+*/
+function msort($matchedFiles, $key) {
+        if (is_array($matchedFiles) && count($matchedFiles) > 0) {
+         if (!empty($key)) {
+                $mapping = array();
+                 
+                // 1. get the sorting fields into a new array with its initial array key,
+                foreach ($matchedFiles as $k => $v) {
+                    $mapping[$k] = $v[$key];
+                }
+               
+				// 2. sort the array against the required sorting field
+				// asort($mapping); //this use php library function asort //why the asort don't need to '$mapping =' to catch the return value but works?
+				$mapping = sortByValue($mapping); 
+				  
+                // 3. rearrange the initial array with the sorted order of keys
+                $sorted = array();
+				
+                foreach ($mapping as $k => $v) {
+                    $sorted[] = $matchedFiles[$k];
+                  }
+				  
+                  return $sorted;
+                }
+           }
+}
+
+
+ /**Function for sorting an array with its value and keeping its initial key.
+ * 
+ * @param array $array
+ * @return array
+ */
+function sortByValue($array) {
+	$initialArray = $array;
+	$length=count($array);
+	for ($i=1;$i<$length;$i++) {
+		$element=$array[$i];
+		$j=$i;
+	
+		while($j>0 && $array[$j-1]>$element) {
+			//move value to right and key to previous smaller index
+			$array[$j]=$array[$j-1];
+			$j=$j-1;
+		}
+		//put the element at index $j
+		$array[$j]=$element;
+	}
+	
+	//match the initial keys to the sorted values
+	$sortedArray = array();
+	foreach ($array as $akey => $avalue){
+		foreach ($initialArray as $ikey => $ivalue){
+			if ($avalue == $ivalue){
+				$sortedArray[$ikey] = $ivalue;
+			} 
+		}
+	}
+	
+	return $sortedArray;
+}
+
+$sorted = msort($matchedFiles, 'filesize');
+
+var_dump($sorted);
+
+
+
 
 ?>
