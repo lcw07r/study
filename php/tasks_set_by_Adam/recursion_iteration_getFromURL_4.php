@@ -5,7 +5,21 @@
         <style>
                 .error {color: #FF0000;}
         </style>
-        <script src="../includes/js/sortingTable/sorttable.js"></script>
+     
+       
+        <script>
+
+	function updateTable(sortby, filesArray){
+		alert(sortby);
+		
+			len = filesArray.length;
+			for(var x=0;x<len;x++){
+				alert(filesArray[x][sortby]);	
+			}
+		
+	}
+		
+	</script>
 </head>
 <body>
 <div class="container">
@@ -296,6 +310,7 @@ function displayMatchedFiles($matchedFiles){
 *
 */
 function displayMatchedFiles_with_msort($matchedFiles){
+	$matchedFilesJson = json_encode($matchedFiles);
 
         $output = '<div class="panel panel-default">';
         $output .= '<div class="panel-heading">The files under the directory with the matching extension are:</div>';
@@ -304,7 +319,7 @@ function displayMatchedFiles_with_msort($matchedFiles){
         $output .= '<tr>';
         $output .= '<th>File Name</th>';
         $output .= '<th>File Path</th>';
-        $output .= '<th><a href="#" onClick="msort($matchedFiles, \"filesize\");alert(\'hhhhhhhhhh\');" >File Size in Bytes</a></th>';
+        $output .= "<th><a onclick='updateTable(\"filesize\",  $matchedFilesJson)' >File Size in Bytes</a></th>";
         $output .= '<th>File Last Modify Date</th>';
         $output .= '</tr>';
         
