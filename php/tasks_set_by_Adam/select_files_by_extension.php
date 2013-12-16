@@ -6,12 +6,7 @@
                 .error {color: #FF0000;}
         </style>
         <script src="../includes/js/sortingTable/sorttable.js"></script>
-		<script>
-			function jsMsort(matchedFiles,sortBy)
-			{
-				alert("sortby is " + sortBy + ", array is " + matchedFiles.toString());
-			}
-		</script>
+
 </head>
 <body>
 <div class="container">
@@ -33,24 +28,33 @@
 */
  
          // define variables and set to empty values
-        $path = $extension = "";
+        $path = $extension = $order ="";
         $err = array("pathErr"=>"", "extensionErr"=>"");
         $matchedFiles = array(); // this will be an array of array("filename"=>"", "path"=>"", "filesize"=>"", "dateModified"=>""));
 
         //prepare data
-        initialise($err, $path, $extension);
+        initialise($err, $path, $extension, $order);
         
         //out put the user input form for the required info (directory and extension)
         outputUserInputForm($path, $extension, $err, $matchedFiles);
                 
         //process the user input
         scanDirectory($path, $extension, $matchedFiles);
-        
-        //dispaly the matched files in a table - sort by included js
-        displayMatchedFiles($matchedFiles);
-        
-        //dispaly the matched files in a table - sort by function msort
-        displayMatchedFiles_with_msort($matchedFiles);
+		
+		//out put the file if found
+		if (empty($matchedFiles)){
+			echo 'There is no file found under the specified directory with the given file extension';
+		}else{
+			//order the table according to the selected column
+			$matchedFiles=msort($matchedFiles, $order);
+
+			//dispaly the matched files in a table - sort by included js
+			//displayMatchedFiles($matchedFiles);
+			
+			//dispaly the matched files in a table - sort by function msort
+			//displayMatchedFiles_with_msort($matchedFiles);
+			displayMatchedFiles_with_msort($matchedFiles, $path, $extension);
+		}
 ?>
 </div><!-- end of container -->
 </body>
@@ -209,13 +213,14 @@ function outputFileWithSelectedExtension($path, $extension){
 * This is a function to prepare the posted form data before loading the page content
 * it also calls to function prepareInput
 */
-function initialise(&$err, &$path, &$extension){
+function initialise(&$err, &$path, &$extension, &$order){
        // global $err, $path, $extension;
         
         //if the form is submitted, scan the input data
         if(isset($_GET['submit'])){
                 $path=@$_GET["path"];
                 $extension=@$_GET["extension"];
+				$order=@$_GET["order"];
                 
                 //1. check if any of the required fields empty, if yes, set error messages
                 if (empty($path) || empty($extension)){
@@ -243,6 +248,10 @@ function initialise(&$err, &$path, &$extension){
                                 $extension = substr($extension, 1);
                         }
                 }
+				//4. set default sort by filename
+				if (empty($order)){
+                    $order = "filename";
+                }				
         }
 }
 
@@ -301,17 +310,17 @@ function displayMatchedFiles($matchedFiles){
 * @param array $matchedFiles list of matched files with file info
 *
 */
-function displayMatchedFiles_with_msort($matchedFiles){
+function displayMatchedFiles_with_msort($matchedFiles, $path, $extension){
 
         $output = '<div class="panel panel-default">';
         $output .= '<div class="panel-heading">The files under the directory with the matching extension are:</div>';
 
         $output .= '<table class="table">';
         $output .= '<tr>';
-        $output .= '<th>File Name</th>';
-        $output .= '<th>File Path</th>';
-        $output .= '<th><a onclick="jsMsort(\''.$matchedFiles.'\', \'filesize\')">File Size in Bytes</a></th>';
-        $output .= '<th>File Last Modify Date</th>';
+        $output .= '<th><a href="'.$_SERVER["PHP_SELF"].'?path='.$path.'&extension='.$extension.'&submit=Submit&order=filename">File Name</a></th>';		
+		$output .= '<th><a href="'.$_SERVER["PHP_SELF"].'?path='.$path.'&extension='.$extension.'&submit=Submit&order=path">File Path</a></th>';
+        $output .= '<th><a href="'.$_SERVER["PHP_SELF"].'?path='.$path.'&extension='.$extension.'&submit=Submit&order=filesize">File Size in Bytes</a></th>';
+		$output .= '<th><a href="'.$_SERVER["PHP_SELF"].'?path='.$path.'&extension='.$extension.'&submit=Submit&order=dateModified">File Last Modify Date</a></th>';
         $output .= '</tr>';
         
         foreach ($matchedFiles as $matchedFile){
@@ -337,6 +346,7 @@ function displayMatchedFiles_with_msort($matchedFiles){
 * @return         array                                         The sorted array.
 */
 function msort($matchedFiles, $key) {
+
         if (is_array($matchedFiles) && count($matchedFiles) > 0) {
          if (!empty($key)) {
                 $mapping = array();
@@ -397,9 +407,7 @@ function sortByValue($array) {
 	return $sortedArray;
 }
 
-$sorted = msort($matchedFiles, 'filesize');
 
-var_dump($sorted);
 
 
 
