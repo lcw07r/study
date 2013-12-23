@@ -5,13 +5,21 @@
         <style>
                 .error {color: #FF0000;}
         </style>
-        <script src="../includes/js/sortingTable/sorttable.js"></script>
-		<script>
-			function jsMsort(matchedFiles,sortBy)
-			{
-				alert("sortby is " + sortBy + ", array is " + matchedFiles.toString());
-			}
-		</script>
+     
+       
+        <script>
+
+        function updateTable(sortby, filesArray){
+                alert(sortby);
+                
+                        len = filesArray.length;
+                        for(var x=0;x<len;x++){
+                                alert(filesArray[x][sortby]);        
+                        }
+                
+        }
+                
+        </script>
 </head>
 <body>
 <div class="container">
@@ -47,7 +55,7 @@
         scanDirectory($path, $extension, $matchedFiles);
         
         //dispaly the matched files in a table - sort by included js
-        displayMatchedFiles($matchedFiles);
+        //displayMatchedFiles($matchedFiles);
         
         //dispaly the matched files in a table - sort by function msort
         displayMatchedFiles_with_msort($matchedFiles);
@@ -302,6 +310,7 @@ function displayMatchedFiles($matchedFiles){
 *
 */
 function displayMatchedFiles_with_msort($matchedFiles){
+        $matchedFilesJson = json_encode($matchedFiles);
 
         $output = '<div class="panel panel-default">';
         $output .= '<div class="panel-heading">The files under the directory with the matching extension are:</div>';
@@ -310,7 +319,7 @@ function displayMatchedFiles_with_msort($matchedFiles){
         $output .= '<tr>';
         $output .= '<th>File Name</th>';
         $output .= '<th>File Path</th>';
-        $output .= '<th><a onclick="jsMsort(\''.$matchedFiles.'\', \'filesize\')">File Size in Bytes</a></th>';
+        $output .= "<th><a onclick='updateTable(\"filesize\", $matchedFilesJson)' >File Size in Bytes</a></th>";
         $output .= '<th>File Last Modify Date</th>';
         $output .= '</tr>';
         
@@ -331,10 +340,10 @@ function displayMatchedFiles_with_msort($matchedFiles){
 /**
 * Sort a 2 dimensional array
 *
-* @param         array                                 $array                 The array to sort.
-* @param                 string|array                         $key                 The index(es) to sort the array on.
+* @param array $array The array to sort.
+* @param string|array $key The index(es) to sort the array on.
 *
-* @return         array                                         The sorted array.
+* @return array The sorted array.
 */
 function msort($matchedFiles, $key) {
         if (is_array($matchedFiles) && count($matchedFiles) > 0) {
@@ -346,17 +355,17 @@ function msort($matchedFiles, $key) {
                     $mapping[$k] = $v[$key];
                 }
                
-				// 2. sort the array against the required sorting field
-				// asort($mapping); //this use php library function asort //why the asort don't need to '$mapping =' to catch the return value but works?
-				$mapping = sortByValue($mapping); 
-				  
+                                // 2. sort the array against the required sorting field
+                                // asort($mapping); //this use php library function asort //why the asort don't need to '$mapping =' to catch the return value but works?
+                                $mapping = sortByValue($mapping);
+                                
                 // 3. rearrange the initial array with the sorted order of keys
                 $sorted = array();
-				
+                                
                 foreach ($mapping as $k => $v) {
                     $sorted[] = $matchedFiles[$k];
                   }
-				  
+                                
                   return $sorted;
                 }
            }
@@ -364,37 +373,37 @@ function msort($matchedFiles, $key) {
 
 
  /**Function for sorting an array with its value and keeping its initial key.
- * 
- * @param array $array
- * @return array
- */
+*
+* @param array $array
+* @return array
+*/
 function sortByValue($array) {
-	$initialArray = $array;
-	$length=count($array);
-	for ($i=1;$i<$length;$i++) {
-		$element=$array[$i];
-		$j=$i;
-	
-		while($j>0 && $array[$j-1]>$element) {
-			//move value to right and key to previous smaller index
-			$array[$j]=$array[$j-1];
-			$j=$j-1;
-		}
-		//put the element at index $j
-		$array[$j]=$element;
-	}
-	
-	//match the initial keys to the sorted values
-	$sortedArray = array();
-	foreach ($array as $akey => $avalue){
-		foreach ($initialArray as $ikey => $ivalue){
-			if ($avalue == $ivalue){
-				$sortedArray[$ikey] = $ivalue;
-			} 
-		}
-	}
-	
-	return $sortedArray;
+        $initialArray = $array;
+        $length=count($array);
+        for ($i=1;$i<$length;$i++) {
+                $element=$array[$i];
+                $j=$i;
+        
+                while($j>0 && $array[$j-1]>$element) {
+                        //move value to right and key to previous smaller index
+                        $array[$j]=$array[$j-1];
+                        $j=$j-1;
+                }
+                //put the element at index $j
+                $array[$j]=$element;
+        }
+        
+        //match the initial keys to the sorted values
+        $sortedArray = array();
+        foreach ($array as $akey => $avalue){
+                foreach ($initialArray as $ikey => $ivalue){
+                        if ($avalue == $ivalue){
+                                $sortedArray[$ikey] = $ivalue;
+                        }
+                }
+        }
+        
+        return $sortedArray;
 }
 
 $sorted = msort($matchedFiles, 'filesize');
