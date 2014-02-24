@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" id="viewport" content="initial-scale=1.0" />
+		<link rel="stylesheet" href="https://tidt-demos.soton.ac.uk/tickets/ui/css/uos-internal.css" />
+		<link rel="stylesheet" media="screen" href="https://tidt-demos.soton.ac.uk/tickets/ui/css/uos-mobile.css">
+		<link rel="stylesheet" href="https://tidt-demos.soton.ac.uk/tickets/ui/css/webedy.css" />
+		<script type="text/javascript" src="https://tidt-demos.soton.ac.uk/tickets/ui/js/jquery-1.9.1.js"></script>
+		<title>SERVICE775837 -- 25/1036 Request for a fixed IP address - Webedy</title>
+	</head>
+	<body>
+		<div class="uos-container">
+			<header>
+	<script type="text/javascript">
+		function showNavigation(){
+			document.getElementById("uos-header").style.display = "block";
+			document.getElementById("uos-hide-nav").style.display = "block";
+			document.getElementById("uos-show-nav").style.display = "none";
+			document.getElementById("uos-left-nav").style.display = "block";
+		}
+		function hideNavigation(){
+			document.getElementById("uos-header").style.display = "none";
+			document.getElementById("uos-hide-nav").style.display = "none";
+			document.getElementById("uos-show-nav").style.display = "block";
+			document.getElementById("uos-left-nav").style.display = "none";
+		}
+	</script>
+	
+	<div class="uos-show-nav" id="uos-show-nav" onclick="showNavigation()">Show navigation</div>
+	<div class="uos-hide-nav" id="uos-hide-nav" onclick="hideNavigation()">Hide navigation</div>
+	<div class="uos-header" id="uos-header">
+		<div class="uos-logo"> </div>
+				<div class="uos-logged-in-user">Logged in as ehr <a href="https://tidt-demos.soton.ac.uk/tickets/logout">Log out</a></div>
+				<div class="uos-app-name">
+			<h1>Webedy</h1>
+			<h2>Remedy tickets on the web</h2>
+		</div>
+		<div class="uos-main-nav">
+			<a href="/tickets/" class="uos-selected">My Tickets (List)</a>
+			<a href="https://tidt-demos.soton.ac.uk/tickets/my-kanban" class="uos-selected">My Tickets (Kanban Chart)</a>
+		</div>
+		<div class="uos-second-nav"></div>
+	</div>
+	
+</header>
+			<div class="uos-main-block">
+				<div class="uos-page-content">
+					<h2>SERVICE775837 -- 25/1036 Request for a fixed IP address</h2>
+					<span class="ticketdetails">
+	<table>
+					<tr><td>Requester Name</td><td>Edward A Young</td></tr>
+					<tr><td>Requester Email</td><td>E.A.Young@soton.ac.uk</td></tr>
+					<tr><td>Create Date</td><td>Mon Feb 10, 2014</td></tr>
+					<tr><td>Contact Number</td><td>2661</td></tr>
+			</table>
+	<script type="text/javascript">
+		function showUpdateForm(e){
+			e.preventDefault();
+			$("#update-ticket").slideDown(400, function(){ $(".update-link").remove(); }); 
+
+		}
+	</script>
+	<p><a class="update-link" href="#" onclick="showUpdateForm(event)">+ Update the ticket</a></p>
+	<div id="update-ticket" style="display:none">
+		<h2>Update</h2>
+		<div class="update-body">
+			<p>Update the ticket by email or send an email to the user (which will also update the ticket).  Note you do not need to add the ticket ID to the subject line</p>
+			<form name="update-by-email" action="https://tidt-demos.soton.ac.uk/tickets/submit_email" method="POST">
+				<input type='text' name="email_subject" value="25/1036 Request for a fixed IP address" style="width: 40em;"/>
+				<br/>
+				<textarea rows=25 cols=80 name="email_text"></textarea>
+				<br/>
+				<input type="hidden" name="ticketid" value="SERVICE775837"/>
+				<input type="submit" name="email_update" value="Update the Ticket"/>
+				<input type="submit" name="email_user" value="Email the User"/>
+			</form>
+		</div>
+	</div>
+	<h2>Description</h2>
+	<p class="ticketdescription">
+		Please register or check there is a fixed IP address for my computer in your DHCP service
+
+If there is not already a fixed IP address I would like to assign a fixed IP address to my computer with MAC address 00:1F:C6:60:3F:E5 so that I can access my computer via Windows Remote Desktop. Please assign the name dualmodecryostat.ses.soton.ac.uk	</p>
+
+	<h2>Work Log</h2>
+	<button> change sort order</button>
+	<dl class="worklog">
+		<dt> 2014-02-18T11:34:57 -- 4444444444444444444 </dt>
+			<dd> Email message sent to E.A.Young@soton.ac.uk;ehr@soton.ac.uk  </dd>
+		<dt> 2012-02-11T12:43:21 --22222222222222</dt>
+			<dd> Placed on hold until 18/02/2014 15:00:00 because...Waiting for reply </dd>
+		<dt> 2013-02-11T12:42:49 -- 33333333333333 </dt>
+			<dd> Handover notes for Team Technical Innovation and Developments:  </dd>
+		<dt> 2016-02-11T12:41:50 -- 6666666666666666 </dt>
+			<dd> Email message sent to E.A.Young@soton.ac.uk;ehr@soton.ac.uk </dd>
+		<dt> 2011-02-10T18:38:18 -- 1111111111111111111 </dt>
+			<dd> Fix: Hi Ed,</dd>
+		</dl>
+
+</span>
+			</div>
+			</div>
+			<div class="uos-footer">
+				<span class="item">copyright and stuff</span>
+				<span class="item">copyright and stuff</span>
+				<span class="item">copyright and stuff</span>
+			</div>
+		</div>
+		
+		
+<script>
+
+(function() {
+
+	// when the sorting button is clicked, do the action
+	$('button').on('click', function(){
+		
+		// sort the strings using the JavaScript String localeCompare() method
+		//The localeCompare() method compares two strings in the current locale, 
+		//and returns a number indicating whether the string comes before, after or is equal as the compareString in sort order.
+		var sort_by_name = function(a, b) {
+			return $(a[0]).text().localeCompare($(b[0]).text());
+		}
+		
+		// get the dt and dd contents and put them into an array    
+		var dtlist = $(".worklog > dt").get();
+		var ddlist = $(".worklog > dd").get();		    
+		var list =  new Array();
+		for (var i = 0; i < dtlist.length; i++) {		
+			list[i] =  [dtlist[i],  ddlist[i]];
+		}
+		  
+		// sort the data
+		list.sort(sort_by_name);
+
+		// update the page content: delete the old ones then add the array data back into the dl element
+		$('dl').children().remove();  
+		for (var i = 0; i < list.length; i++) {
+			$('dl').append(list[i][0]);
+		     	$('dl').append(list[i][1]);		        
+ 		}		   
+	});
+})();
+
+</script>
+	
+		
+	</body>
+</html>
