@@ -1,0 +1,47 @@
+<html>
+<head>
+  <title>Test</title>
+  <style>
+    table {
+  border-collapse: collapse;
+ }
+ td {
+  border: 1px solid blue;
+ }
+  </style>
+</head>
+<body>
+  <table id="mytable">
+  </table>
+  <button onclick="sortColumn(0)">Sort by column 1</button>
+  <button onclick="sortColumn(1)">Sort by column 2</button>
+  <button onclick="sortColumn(2)">Sort by column 3</button>
+  <script>
+ var data = [[0, "apple", 0.9], [1, "pear", 0.5], [2, "ball", 0.2]];
+  
+    function genTable(tableID, data) {
+  var element = document.getElementById(tableID);
+  var html = "";
+  for (var row = 0; row < data.length; row++) {
+   html += "<tr>";
+   for (var column = 0; column < data[row].length; column++) {
+    html += "<td>" + data[row][column] + "</td>";
+   }
+   html += "</tr>\n";
+  }
+  element.innerHTML = html;
+ }
+ 
+ function sortColumn(columnIndex) {
+  data.sort(function (a, b) {
+   if (a[columnIndex] < b[columnIndex]) return -1;
+   if (a[columnIndex] > b[columnIndex]) return +1;
+   return 0;
+  });
+  genTable("mytable", data);
+ }
+ 
+ sortColumn(0);
+  </script>
+</body>
+</html>
