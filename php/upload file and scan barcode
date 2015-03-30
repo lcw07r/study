@@ -1,9 +1,14 @@
 <?php
  include "header.php";
 
+ //get the initial uri only - if scan more than once, the initial uri will be appended with the code in callback 
+ $uri_pieces = explode("?", $_SERVER[REQUEST_URI]);
+ $_SERVER[REQUEST_URI]=$uri_pieces[0];
  $URL ="http://zxing.appspot.com/scan?ret=http%3A%2F%2F$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]?code={CODE}";
+ 
  $barcode= $_GET['code'];
  
+ $test1=''; 
  if($barcode!=''){
     $test1=$barcode;  
  }else{
