@@ -1,0 +1,155 @@
+<?php
+
+// include "header_prefs.inc";
+
+$postcode = 'so171bj';    // UoS
+//$postcode = 'SO237RX';  // Utilita
+
+// get cleint location (lat and lng) from postcode
+$location = get_lat_and_lng_by_postcode($postcode);
+$lat= $location['lat'];
+$lng= $location['lng'];
+
+/* 
+ * get loction lat and lng by postcode
+ * @param  $postcode  
+ * @return array &location[lat, lng]
+ */ 
+function get_lat_and_lng_by_postcode($postcode){
+    $loc=array();
+    $url = "http://maps.googleapis.com/maps/api/geocode/json?address=$postcode,+UK&sensor=false%E2%80%8C%E2%80%8B";
+    
+    $json_data = @file_get_contents($url);    
+    $my_data = json_decode($json_data, true);
+    $location=$my_data['results'][0]['geometry']['location'];
+    $loc['lat']= $location['lat'];
+    $loc['lng']= $location['lng'];
+    
+    return $loc;
+} 
+
+?>
+
+<div data-role='page'>
+    
+     <div data-role="header" data-position="fixed" data-theme="b">
+             <h1>test geo location</h1>
+     </div>  <!--/header-->    
+    
+     <div data-role="content">
+
+        <div id="map" ></div>
+        <div id="message" ></div>
+     </div> <!--/content--> 
+     
+  
+     <div data-role="footer" data-position="fixed" data-theme="b">
+             <h1>footer</h1>
+     </div>  <!--/footer-->        
+</div>  <!--/page--> 
+
+
+<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAAPDUET0Qt7p2VcSk6JNU1sBSM5jMcmVqUpI7aqV44cW1cEECiThQYkcZUPRJn9vy_TWxWvuLoOfSFBw" type="text/javascript"></script>
+<noscript>
+      <b>JavaScript must be enabled in order for you to use Google Maps.</b> 
+      However, it seems JavaScript is either disabled or not supported by your browser. 
+      To view Google Maps, enable JavaScript by changing your browser options, and then 
+      try again.
+</noscript>      
+<script>
+    if (GBrowserIsCompatible()) { 
+        
+        var user_lat, user_lng;
+        var target_lat = <?php echo $lat; ?>,
+            target_lng = <?php echo $lng; ?>;
+        
+        if (window.navigator.geolocation) {
+                  //get user current location
+                  var failure, success;
+                  success = function(position) {
+                  user_lat = position.coords.latitude;
+                  user_lng = position.coords.longitude;
+
+                 //calculate the distance of the 2 locations                      
+                  google.maps.LatLng.prototype.distanceFrom = function(latlng) {
+                      var lat = [this.lat(), latlng.lat()]
+                      var lng = [this.lng(), latlng.lng()]
+                      var R = 6378137;
+                      var dLat = (lat[1]-lat[0]) * Math.PI / 180;
+                      var dLng = (lng[1]-lng[0]) * Math.PI / 180;
+                      var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat[0] * Math.PI / 180 ) * Math.cos(lat[1] * Math.PI / 180 ) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
+                      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                      var d = R * c;
+                      return Math.round(d);
+                  }                     
+                  var loc1 = new GLatLng(target_lat,target_lng);
+                  var loc2 = new GLatLng(user_lat,user_lng);
+                  var dist = loc2.distanceFrom(loc1);  // distance in meter
+                  console.log(dist/1000 + ' km');                          
+             
+             //  display map and markers if distance > 1 km, else display message for arive target location.
+             if(dist/1000 > 1){ 
+                  // create the map and markers for the target location and the user's current location
+                  function createMarker(point,html) {
+                    var marker = new GMarker(point);
+                    GEvent.addListener(marker, "click", function() {
+                      marker.openInfoWindowHtml(html);
+                    });
+                    return marker;
+                  }
+            
+                  // Display the map, with some controls and set the initial location 
+                  var mapdiv = document.getElementById("map");
+                  mapdiv.setAttribute("style","width: 550px; height: 450px");
+                  var map = new GMap2(mapdiv);
+                  map.addControl(new GLargeMapControl());
+                  map.addControl(new GMapTypeControl());
+                  //map.setCenter(new GLatLng(43.907787,-79.359741),8);
+                  map.setCenter(new GLatLng(target_lat,target_lng),10);
+                  
+                  
+                  // Set up three markers with info windows                 
+                  var point = new GLatLng(user_lat,user_lng);
+                  var marker = createMarker(point,'<div style="width:240px">Some stuff to display in the First Info Window. With a <a href="http://www.econym.demon.co.uk">Link<\/a> to my home page<\/div>')
+                  map.addOverlay(marker);
+            
+                  var point = new GLatLng(target_lat,target_lng);
+                  var marker = createMarker(point,'Some stuff to display in the<br>Second Info Window')
+                  map.addOverlay(marker);
+                  
+                  document.getElementById("message").innerHTML = 'you are '+dist/1000+' km away from your target location.';
+
+              } else {
+                  document.getElementById("message").innerHTML = 'you are at the target location';
+                  //message.value = "you are the the target location";
+                  //console.log('hhhhhhhhhhhhhhhhhh'+message);
+              }   
+            
+                  
+                       
+              //console.log(position);
+              console.log(user_lat);
+              console.log(user_lng); 
+               //console.log(getDistance);
+            };
+            failure = function(message) {
+              alert('Cannot retrieve location!');
+                };
+                navigator.geolocation.getCurrentPosition(success, failure, {
+                  maximumAge: Infinity,
+                  timeout: 5000
+                });
+            }   
+   
+        }
+        
+        // display a warning if the browser was not compatible
+    else {
+      alert("Sorry, the Google Maps API is not compatible with this browser");
+    }
+      
+</script>
+
+
