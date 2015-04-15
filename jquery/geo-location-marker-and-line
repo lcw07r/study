@@ -1,0 +1,183 @@
+<?php
+
+// set test data - cleint location (lat and lng) from postcode
+$postcode = 'SO237RX';    // Utilita
+$location = get_lat_and_lng_by_postcode($postcode);
+$lat= $location['lat'];
+$lng= $location['lng'];
+$info="Utilita - on site at 3pm";
+
+$postcode2 = 'so211rt';    // Colden Common
+$location2 = get_lat_and_lng_by_postcode($postcode2);
+$lat2= $location2['lat'];
+$lng2= $location2['lng'];
+$info2="Colden Common- on site at 1pm";
+
+$postcode3 = 'so212jn';    // IBM, Hursley, Winchester
+$location3 = get_lat_and_lng_by_postcode($postcode3);
+$lat3= $location3['lat'];
+$lng3= $location3['lng'];
+$info3="IBM, Hursley, Winchester - on site at 10am";
+
+$postcode4 = 'so171bj';    // University of Southampton
+$location4 = get_lat_and_lng_by_postcode($postcode4);
+$lat4= $location4['lat'];
+$lng4= $location4['lng'];
+$info4="University of Southampton - on site at 8am";
+
+/* 
+ * get loction lat and lng by postcode
+ * @param  $postcode  
+ * @return array &location[lat, lng]
+ */ 
+function get_lat_and_lng_by_postcode($postcode){
+    $loc=array();
+    $url = "http://maps.googleapis.com/maps/api/geocode/json?address=$postcode,+UK&sensor=false%E2%80%8C%E2%80%8B";
+    
+    $json_data = @file_get_contents($url);    
+    $my_data = json_decode($json_data, true);
+    $location=$my_data['results'][0]['geometry']['location'];
+    $loc['lat']= $location['lat'];
+    $loc['lng']= $location['lng'];
+    
+    return $loc;
+} 
+
+?>
+
+<div data-role='page'>
+    
+     <div data-role="header" data-position="fixed" data-theme="b">
+             <h1>test geo location</h1>
+     </div>  <!--/header-->    
+    
+     <div data-role="content">
+
+        <div id="map-canvas"  style="width: 550px; height: 450px; margin: auto;"></div>
+        <div id="message" ></div>
+     </div> <!--/content--> 
+     
+  
+     <div data-role="footer" data-position="fixed" data-theme="b">
+             <h1>footer</h1>
+     </div>  <!--/footer-->        
+</div>  <!--/page--> 
+
+
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
+   
+<script>
+     function initialize() {
+          var mapOptions = {
+            zoom: 10,
+            center: new google.maps.LatLng(<?php echo $lat?>, <?php echo $lng?>),
+            //mapTypeId: google.maps.MapTypeId.TERRAIN
+          };
+        
+          var map = new google.maps.Map(document.getElementById('map-canvas'),  mapOptions);
+          
+          var   lat  = <?php echo $lat; ?>,
+                lng  = <?php echo $lng; ?>,
+                info  = '<?php echo $info; ?>',                         
+                lat2 = <?php echo $lat2; ?>,          
+                lng2 = <?php echo $lng2; ?>, 
+                info2  = '<?php echo $info2; ?>',            
+                lat3 = <?php echo $lat3; ?>,          
+                lng3 = <?php echo $lng3; ?>,     
+                info3  = '<?php echo $info3; ?>',          
+                lat4 = <?php echo $lat4; ?>,          
+                lng4 = <?php echo $lng4; ?>,        
+                info4  = '<?php echo $info4; ?>';  
+                 
+          var locations = [
+              [info4, lat4, lng4, 4],
+              [info3, lat3, lng3, 3],
+              [info2, lat2, lng2, 2],
+              [info, lat, lng, 1]
+          ];
+                    
+          var lineSymbol = {
+            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+          };
+          
+    
+          var lineCoordinates  = [
+            new google.maps.LatLng(lat4, lng4),
+            new google.maps.LatLng(lat3, lng3),
+            new google.maps.LatLng(lat2, lng2),
+            new google.maps.LatLng(lat, lng)           
+          ];
+  
+
+              
+          var path = new google.maps.Polyline({
+            path: lineCoordinates,
+            icons: [{
+                      icon: lineSymbol,
+                      offset: '100%'
+                    }],
+            geodesic: true,
+            map: map,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+          });
+        
+          path.setMap(map);
+          
+          setMarkers(map, locations);
+    }
+    
+    function setMarkers(map, locations) {
+      // Add markers to the map
+    
+      // Marker sizes are expressed as a Size of X,Y
+      // where the origin of the image (0,0) is located
+      // in the top left of the image.
+    
+      // Origins, anchor positions and coordinates of the marker
+      // increase in the X direction to the right and in
+      // the Y direction down.
+      var image = {
+        url: 'thumbs/ok.png',
+        // This marker is 30 pixels wide by 30 pixels tall.
+        size: new google.maps.Size(30, 30),
+        // The origin for this image is 0,0.
+        origin: new google.maps.Point(0,0),
+        // The anchor for this image is the base of the flagpole at 10,10.
+        anchor: new google.maps.Point(10, 10)
+      };
+      // Shapes define the clickable region of the icon.
+      // The type defines an HTML &lt;area&gt; element 'poly' which
+      // traces out a polygon as a series of X,Y points. The final
+      // coordinate closes the poly by connecting to the first
+      // coordinate.
+          /* no use in this case, as the selected image is a cycle
+           var shape = {
+              coords: [1, 1, 1, 20, 18, 20, 18 , 1],
+              type: 'poly'
+          };
+          */
+      
+      for (var i = 0; i < locations.length; i++) {
+        var loc = locations[i];
+        var myLatLng = new google.maps.LatLng(loc[1], loc[2]);
+        var marker = new google.maps.Marker({
+            position: myLatLng,
+            map: map,
+            icon: image,
+           // shape: shape,
+            title: loc[0],
+            zIndex: loc[3]
+        });
+    
+    
+      }
+    }
+    
+
+    
+    google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+
+
