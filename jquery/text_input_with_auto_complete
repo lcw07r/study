@@ -1,0 +1,115 @@
+<?php
+ session_start();
+ include "header_prefs.inc";
+ include "db_connect.inc"; 
+
+ // array from fetched from DB
+ $engineer_names = get_engineers($conn);  
+ 
+ // array built using php
+ $php_array = array(
+              "apple",
+              "banana",
+              "car",
+              "dog",
+              "egg",
+              "fish",
+              "goat",
+              "home",
+              "ice",
+              "jump"
+            ); 
+?>
+
+    <div data-role='page'>
+        
+          <div data-role="header" data-position="fixed" data-theme="b">
+            <!-- <a href="index.php" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left jqm-home">Home</a>-->
+                 <h1>test</h1>
+         </div>  <!--/header-->    
+        
+         <div data-role="content">
+            <p>basiced on the autocomplete info from https://jqueryui.com/autocomplete/</p>
+            
+            <div class="ui-widget">
+              <label for="db_array">Data srray fetched from DB  </label>
+              <input id="db_array">
+            </div>
+
+            <div class="ui-widget">
+              <label for="php_array">Data array built using php </label>
+              <input id="php_array">
+            </div>
+            
+            <div class="ui-widget">
+              <label for="js_array">Data array built using js </label>
+              <input id="js_array">
+            </div>            
+
+             
+         </div> <!--/content--> 
+         <?php include "footer.php";  ?>  
+   
+        <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+        
+        <script>
+         $(function() {
+            var js_array_data = [
+              "ActionScript",
+              "AppleScript",
+              "Asp",
+              "BASIC",
+              "C",
+              "C++",
+              "Clojure",
+              "COBOL",
+              "ColdFusion",
+              "Erlang",
+              "Fortran",
+              "Groovy",
+              "Haskell",
+              "Java",
+              "JavaScript",
+              "Lisp",
+              "Perl",
+              "PHP",
+              "Python",
+              "Ruby",
+              "Scala",
+              "Scheme"
+            ];  
+            
+            
+            $( "#js_array" ).autocomplete({
+              source: js_array_data
+            });      
+               
+            var db_array_data = <?php echo '["' . implode('", "', $engineer_names) . '"]' ?>;
+            $( "#db_array" ).autocomplete({
+              source: db_array_data
+            });
+            
+            var php_array_data = <?php echo '["' . implode('", "', $php_array) . '"]' ?>;
+            $( "#php_array" ).autocomplete({
+              source: php_array_data
+            });           
+            
+          });
+        </script> 
+      
+    </div>  <!--/page-->
+    
+<?php 
+function get_engineers($conn){
+    $engineer_names = array();
+    $query="select distinct forename||' '||surname engineer_name from smiff.wmol_users order by 1";
+    $st = oci_parse($conn, $query);
+    oci_execute($st);
+    while ($row=oci_fetch_row($st)) 
+    {
+        $engineer_names[] = $row[0];
+    }        
+    return $engineer_names;
+}
+
